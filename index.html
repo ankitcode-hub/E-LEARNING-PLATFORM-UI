@@ -1,0 +1,1808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LearnVerse - E-Learning Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c26;
+    --border: #2a2a38;
+    --accent: #7c5cfc;
+    --accent2: #fc5c7d;
+    --accent3: #5cf4fc;
+    --text: #e8e8f0;
+    --text-dim: #8888a8;
+    --success: #5cfca8;
+    --warning: #fcb75c;
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, .logo-text { font-family: 'Syne', sans-serif; }
+
+  /* ─── NOISE OVERLAY ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* ─── PAGES ─── */
+  .page { display: none; min-height: 100vh; }
+  .page.active { display: flex; flex-direction: column; }
+
+  /* ─── NAVBAR ─── */
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 40px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(20px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+
+  .logo-icon {
+    width: 38px;
+    height: 38px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .logo-text {
+    font-size: 20px;
+    font-weight: 800;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .nav-btn {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+
+  .nav-btn:hover, .nav-btn.active-nav {
+    background: var(--surface2);
+    color: var(--text);
+  }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #9b79ff);
+    border: none;
+    color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    padding: 10px 22px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.25s;
+    box-shadow: 0 4px 20px rgba(124,92,252,0.3);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 28px rgba(124,92,252,0.45);
+  }
+
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    padding: 10px 22px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.25s;
+  }
+
+  .btn-outline:hover {
+    border-color: var(--accent);
+    background: rgba(124,92,252,0.08);
+  }
+
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  /* ─── HOME PAGE ─── */
+  .hero {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 80px 40px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-glow {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(124,92,252,0.15) 0%, transparent 70%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(124,92,252,0.12);
+    border: 1px solid rgba(124,92,252,0.3);
+    color: #a78bfa;
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 24px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero h1 {
+    font-size: clamp(42px, 6vw, 80px);
+    font-weight: 800;
+    line-height: 1.05;
+    margin-bottom: 20px;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  .hero h1 span {
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero p {
+    font-size: 18px;
+    color: var(--text-dim);
+    max-width: 520px;
+    line-height: 1.6;
+    margin-bottom: 36px;
+    animation: fadeUp 0.6s 0.2s ease both;
+    font-weight: 300;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 14px;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  .hero-actions .btn-primary {
+    padding: 14px 32px;
+    font-size: 16px;
+  }
+
+  .hero-actions .btn-outline {
+    padding: 14px 32px;
+    font-size: 16px;
+  }
+
+  .stats-row {
+    display: flex;
+    gap: 48px;
+    margin-top: 60px;
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+
+  .stat { text-align: center; }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .stat-label { font-size: 13px; color: var(--text-dim); margin-top: 2px; }
+
+  /* ─── SECTION ─── */
+  .section {
+    padding: 60px 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+  }
+
+  .section-title {
+    font-size: 26px;
+    font-weight: 700;
+  }
+
+  .section-link {
+    color: var(--accent);
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: 500;
+    transition: opacity 0.2s;
+  }
+  .section-link:hover { opacity: 0.7; }
+
+  /* ─── COURSE CARDS ─── */
+  .courses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  .course-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+  }
+
+  .course-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3), 0 0 0 1px rgba(124,92,252,0.2);
+  }
+
+  .course-thumb {
+    height: 160px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .course-thumb-bg {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+  }
+
+  .course-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent3);
+    border: 1px solid rgba(92,244,252,0.2);
+  }
+
+  .course-play {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 40px;
+  }
+  .course-card:hover .course-play { opacity: 1; }
+
+  .course-body { padding: 18px; }
+
+  .course-tags {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    background: rgba(124,92,252,0.12);
+    color: #a78bfa;
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+
+  .course-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+
+  .course-author {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+  }
+
+  .course-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .course-rating {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .stars { color: var(--warning); }
+
+  .course-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  .course-progress-bar {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-top: 14px;
+    overflow: hidden;
+  }
+
+  .course-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    border-radius: 2px;
+    transition: width 1s ease;
+  }
+
+  /* ─── DASHBOARD ─── */
+  .dashboard-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 24px;
+    padding: 32px 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+    flex: 1;
+  }
+
+  .sidebar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    height: fit-content;
+    position: sticky;
+    top: 90px;
+  }
+
+  .sidebar-section { margin-bottom: 28px; }
+  .sidebar-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-dim);
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .sidebar-item:hover, .sidebar-item.active {
+    background: rgba(124,92,252,0.12);
+    color: var(--text);
+  }
+  .sidebar-item.active { color: var(--accent); }
+
+  .sidebar-icon { font-size: 18px; width: 24px; text-align: center; }
+
+  .sidebar-badge {
+    margin-left: auto;
+    background: var(--accent);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+
+  /* ─── PROGRESS SECTION ─── */
+  .progress-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .progress-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+
+  .progress-card-label {
+    font-size: 12px;
+    color: var(--text-dim);
+    font-weight: 500;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .progress-card-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+
+  .progress-card-sub {
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  .progress-ring-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+  }
+
+  .ring-container {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ring-text {
+    position: absolute;
+    text-align: center;
+  }
+
+  .ring-percent {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+  }
+
+  .ring-label {
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  /* ─── MY COURSES TABLE ─── */
+  .enrolled-list { display: flex; flex-direction: column; gap: 12px; }
+
+  .enrolled-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    display: grid;
+    grid-template-columns: 48px 1fr auto auto;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+
+  .enrolled-item:hover {
+    border-color: var(--accent);
+    background: var(--surface2);
+  }
+
+  .enrolled-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+  }
+
+  .enrolled-info .enrolled-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 4px;
+  }
+
+  .enrolled-info .enrolled-meta {
+    font-size: 12px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .enrolled-progress-wrap { min-width: 150px; }
+  .enrolled-prog-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+  .enrolled-prog-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .enrolled-prog-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+  }
+
+  .resume-btn {
+    background: rgba(124,92,252,0.15);
+    border: 1px solid rgba(124,92,252,0.3);
+    color: var(--accent);
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .resume-btn:hover {
+    background: rgba(124,92,252,0.25);
+  }
+
+  /* ─── VIDEO PLAYER PAGE ─── */
+  .video-layout {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 0;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .video-main {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .video-player {
+    background: #000;
+    aspect-ratio: 16/9;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .video-player-bg {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .video-code-art {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 40px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: rgba(124,92,252,0.4);
+    line-height: 1.8;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .video-play-btn {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: rgba(124,92,252,0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    position: relative;
+    z-index: 1;
+    transition: all 0.2s;
+    border: 3px solid rgba(255,255,255,0.2);
+    cursor: pointer;
+  }
+
+  .video-play-btn:hover { transform: scale(1.08); background: var(--accent); }
+
+  .video-controls {
+    background: #111;
+    padding: 14px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .video-progress {
+    height: 4px;
+    background: #333;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .video-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    width: 35%;
+    border-radius: 4px;
+    transition: width 0.3s;
+  }
+
+  .video-controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .ctrl-btn {
+    background: none;
+    border: none;
+    color: #ccc;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+  }
+  .ctrl-btn:hover { color: white; background: rgba(255,255,255,0.1); }
+
+  .ctrl-left, .ctrl-right { display: flex; align-items: center; gap: 4px; }
+
+  .video-time { font-size: 13px; color: #888; font-family: monospace; }
+
+  .video-info {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .video-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .video-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  .video-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+  }
+
+  .video-tab {
+    padding: 14px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dim);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+
+  .video-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .video-tab-content {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  .lesson-description {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  /* Playlist */
+  .playlist {
+    border-left: 1px solid var(--border);
+    background: var(--surface);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .playlist-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+    z-index: 1;
+  }
+
+  .playlist-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .playlist-progress-text {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+
+  .playlist-prog-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .playlist-prog-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    width: 35%;
+  }
+
+  .playlist-section { margin-bottom: 4px; }
+
+  .playlist-section-header {
+    padding: 10px 20px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: var(--surface2);
+  }
+
+  .playlist-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+
+  .playlist-item:hover { background: rgba(124,92,252,0.06); }
+  .playlist-item.active { background: rgba(124,92,252,0.12); border-left: 3px solid var(--accent); padding-left: 17px; }
+
+  .playlist-num {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+    color: var(--text-dim);
+  }
+
+  .playlist-item.completed .playlist-num {
+    background: rgba(92,252,168,0.2);
+    color: var(--success);
+  }
+
+  .playlist-item.active .playlist-num {
+    background: var(--accent);
+    color: white;
+  }
+
+  .playlist-item-info { flex: 1; min-width: 0; }
+
+  .playlist-item-title {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .playlist-item.active .playlist-item-title { color: var(--accent); }
+
+  .playlist-item-meta {
+    font-size: 11px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* ─── ACHIEVEMENTS ─── */
+  .achievement-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
+    margin-top: 20px;
+  }
+
+  .achievement-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+
+  .achievement-card:hover {
+    border-color: var(--warning);
+    transform: translateY(-2px);
+  }
+
+  .achievement-icon { font-size: 36px; margin-bottom: 10px; }
+  .achievement-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+  .achievement-desc { font-size: 12px; color: var(--text-dim); }
+
+  /* ─── CALENDAR / STREAK ─── */
+  .streak-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+
+  .streak-day {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-dim);
+    transition: all 0.2s;
+  }
+
+  .streak-day.done { background: rgba(124,92,252,0.5); color: white; }
+  .streak-day.today { background: var(--accent); color: white; box-shadow: 0 0 10px rgba(124,92,252,0.5); }
+
+  /* ─── SEARCH / CATALOG ─── */
+  .catalog-header {
+    background: linear-gradient(135deg, rgba(124,92,252,0.1), rgba(92,244,252,0.05));
+    border-bottom: 1px solid var(--border);
+    padding: 40px 40px 0;
+  }
+
+  .catalog-title {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+
+  .catalog-subtitle { font-size: 15px; color: var(--text-dim); margin-bottom: 24px; }
+
+  .search-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 20px;
+    margin-bottom: -1px;
+    max-width: 600px;
+    transition: border-color 0.2s;
+  }
+
+  .search-bar:focus-within { border-color: var(--accent); }
+  .search-bar input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-size: 15px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .search-bar input::placeholder { color: var(--text-dim); }
+  .search-icon { color: var(--text-dim); font-size: 18px; }
+
+  .filter-tabs {
+    display: flex;
+    gap: 8px;
+    padding: 20px 40px;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    flex-wrap: wrap;
+  }
+
+  .filter-tab {
+    padding: 8px 18px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    background: none;
+    transition: all 0.2s;
+    white-space: nowrap;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .filter-tab:hover { border-color: var(--accent); color: var(--text); }
+  .filter-tab.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+  /* ─── CHART (simple bars) ─── */
+  .bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    height: 100px;
+    margin-top: 16px;
+  }
+
+  .bar-col { display: flex; flex-direction: column; align-items: center; flex: 1; gap: 4px; }
+
+  .bar {
+    width: 100%;
+    border-radius: 6px 6px 0 0;
+    background: linear-gradient(180deg, var(--accent), rgba(124,92,252,0.3));
+    min-height: 4px;
+    transition: height 0.8s ease;
+  }
+
+  .bar-label { font-size: 10px; color: var(--text-dim); }
+
+  /* ─── MISC ─── */
+  .divider { height: 1px; background: var(--border); margin: 8px 0; }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .chip-success { background: rgba(92,252,168,0.12); color: var(--success); }
+  .chip-warn { background: rgba(252,183,92,0.12); color: var(--warning); }
+  .chip-info { background: rgba(92,244,252,0.12); color: var(--accent3); }
+
+  /* Scroll */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+  /* ─── TOAST ─── */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    z-index: 9000;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .dashboard-layout { grid-template-columns: 1fr; }
+    .video-layout { grid-template-columns: 1fr; }
+    .playlist { display: none; }
+    .progress-cards { grid-template-columns: 1fr; }
+    nav { padding: 14px 20px; }
+    .section { padding: 40px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════
+     NAVBAR
+════════════════════════════════════════════ -->
+<nav>
+  <div class="logo" onclick="showPage('home')">
+    <div class="logo-icon">🎓</div>
+    <span class="logo-text">LearnVerse</span>
+  </div>
+
+  <div class="nav-links">
+    <button class="nav-btn active-nav" id="nav-home" onclick="showPage('home'); setActiveNav('nav-home')">Home</button>
+    <button class="nav-btn" id="nav-catalog" onclick="showPage('catalog'); setActiveNav('nav-catalog')">Explore</button>
+    <button class="nav-btn" id="nav-dashboard" onclick="showPage('dashboard'); setActiveNav('nav-dashboard')">My Learning</button>
+  </div>
+
+  <div class="nav-right">
+    <button class="btn-outline" onclick="showPage('catalog'); setActiveNav('nav-catalog')">Browse Courses</button>
+    <div class="avatar" onclick="showPage('dashboard'); setActiveNav('nav-dashboard')">AN</div>
+  </div>
+</nav>
+
+<!-- ════════════════════════════════════════════
+     PAGE: HOME
+════════════════════════════════════════════ -->
+<div class="page active" id="page-home">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-glow"></div>
+    <div class="hero-badge">✦ 2,000+ Students Learning Right Now</div>
+    <h1>Master Skills<br>That <span>Actually Matter</span></h1>
+    <p>Expert-led courses on web dev, data science, design, and more. Learn at your own pace with hands-on projects.</p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="showPage('catalog'); setActiveNav('nav-catalog')">Start Learning Free →</button>
+      <button class="btn-outline" onclick="showPage('dashboard'); setActiveNav('nav-dashboard')">View My Progress</button>
+    </div>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-num">50K+</div><div class="stat-label">Students</div></div>
+      <div class="stat"><div class="stat-num">340+</div><div class="stat-label">Courses</div></div>
+      <div class="stat"><div class="stat-num">98%</div><div class="stat-label">Satisfaction</div></div>
+      <div class="stat"><div class="stat-num">4.9★</div><div class="stat-label">Avg Rating</div></div>
+    </div>
+  </div>
+
+  <!-- Featured Courses -->
+  <div class="section">
+    <div class="section-header">
+      <h2 class="section-title">🔥 Popular Courses</h2>
+      <span class="section-link" onclick="showPage('catalog'); setActiveNav('nav-catalog')">View all →</span>
+    </div>
+    <div class="courses-grid" id="home-courses"></div>
+  </div>
+
+  <!-- Categories -->
+  <div class="section" style="padding-top:0">
+    <div class="section-header">
+      <h2 class="section-title">✦ Browse by Topic</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;">
+      <div class="course-card" style="padding:20px;text-align:center;cursor:pointer" onclick="showPage('catalog'); setActiveNav('nav-catalog')">
+        <div style="font-size:32px;margin-bottom:8px">💻</div>
+        <div style="font-family:Syne,sans-serif;font-weight:700;font-size:14px">Web Dev</div>
+        <div style="font-size:12px;color:var(--text-dim);margin-top:4px">82 courses</div>
+      </div>
+      <div class="course-card" style="padding:20px;text-align:center;cursor:pointer">
+        <div style="font-size:32px;margin-bottom:8px">📊</div>
+        <div style="font-family:Syne,sans-serif;font-weight:700;font-size:14px">Data Science</div>
+        <div style="font-size:12px;color:var(--text-dim);margin-top:4px">65 courses</div>
+      </div>
+      <div class="course-card" style="padding:20px;text-align:center;cursor:pointer">
+        <div style="font-size:32px;margin-bottom:8px">🎨</div>
+        <div style="font-family:Syne,sans-serif;font-weight:700;font-size:14px">UI/UX Design</div>
+        <div style="font-size:12px;color:var(--text-dim);margin-top:4px">48 courses</div>
+      </div>
+      <div class="course-card" style="padding:20px;text-align:center;cursor:pointer">
+        <div style="font-size:32px;margin-bottom:8px">🤖</div>
+        <div style="font-family:Syne,sans-serif;font-weight:700;font-size:14px">AI & ML</div>
+        <div style="font-size:12px;color:var(--text-dim);margin-top:4px">57 courses</div>
+      </div>
+      <div class="course-card" style="padding:20px;text-align:center;cursor:pointer">
+        <div style="font-size:32px;margin-bottom:8px">📱</div>
+        <div style="font-family:Syne,sans-serif;font-weight:700;font-size:14px">Mobile Dev</div>
+        <div style="font-size:12px;color:var(--text-dim);margin-top:4px">39 courses</div>
+      </div>
+      <div class="course-card" style="padding:20px;text-align:center;cursor:pointer">
+        <div style="font-size:32px;margin-bottom:8px">🔐</div>
+        <div style="font-family:Syne,sans-serif;font-weight:700;font-size:14px">Cybersecurity</div>
+        <div style="font-size:12px;color:var(--text-dim);margin-top:4px">31 courses</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     PAGE: CATALOG
+════════════════════════════════════════════ -->
+<div class="page" id="page-catalog">
+  <div class="catalog-header">
+    <h1 class="catalog-title">Explore Courses</h1>
+    <p class="catalog-subtitle">Discover your next skill from 340+ expert courses</p>
+    <div class="search-bar">
+      <span class="search-icon">🔍</span>
+      <input type="text" placeholder="Search for courses, topics, instructors…" id="search-input" oninput="filterCourses()">
+    </div>
+  </div>
+
+  <div class="filter-tabs">
+    <button class="filter-tab active" onclick="setFilter(this,'All')">All</button>
+    <button class="filter-tab" onclick="setFilter(this,'Web Dev')">Web Development</button>
+    <button class="filter-tab" onclick="setFilter(this,'Data Science')">Data Science</button>
+    <button class="filter-tab" onclick="setFilter(this,'Design')">Design</button>
+    <button class="filter-tab" onclick="setFilter(this,'AI & ML')">AI & Machine Learning</button>
+    <button class="filter-tab" onclick="setFilter(this,'Mobile')">Mobile Dev</button>
+    <button class="filter-tab" onclick="setFilter(this,'Cybersecurity')">Cybersecurity</button>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <h2 class="section-title" id="catalog-heading">All Courses</h2>
+      <span class="section-link" id="catalog-count">12 courses</span>
+    </div>
+    <div class="courses-grid" id="catalog-courses"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     PAGE: DASHBOARD
+════════════════════════════════════════════ -->
+<div class="page" id="page-dashboard">
+  <div class="dashboard-layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px">
+        <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--accent2),var(--accent));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px">AN</div>
+        <div>
+          <div style="font-family:Syne,sans-serif;font-weight:700;font-size:15px">Ankit</div>
+          <div style="font-size:12px;color:var(--text-dim)">Pro Member</div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Overview</div>
+        <div class="sidebar-item active" onclick="showTab('overview')">
+          <span class="sidebar-icon">📊</span> Dashboard
+        </div>
+        <div class="sidebar-item" onclick="showTab('mycourses')">
+          <span class="sidebar-icon">📚</span> My Courses
+          <span class="sidebar-badge">4</span>
+        </div>
+        <div class="sidebar-item" onclick="showTab('achievements')">
+          <span class="sidebar-icon">🏆</span> Achievements
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Learning Streak</div>
+        <div style="font-family:Syne,sans-serif;font-size:22px;font-weight:800;margin-bottom:4px">🔥 14 Days</div>
+        <div style="font-size:12px;color:var(--text-dim);margin-bottom:10px">Keep it going!</div>
+        <div class="streak-row" id="streak-row"></div>
+      </div>
+
+      <div class="divider" style="margin-top:20px"></div>
+
+      <div style="margin-top:16px">
+        <div class="sidebar-label">Weekly Goal</div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-dim);margin-bottom:6px">
+          <span>4.2 / 5 hours</span><span>84%</span>
+        </div>
+        <div class="enrolled-prog-bar">
+          <div class="enrolled-prog-fill" style="width:84%"></div>
+        </div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:6px">49 min left this week</div>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main>
+
+      <!-- OVERVIEW TAB -->
+      <div id="tab-overview">
+        <div style="margin-bottom:24px">
+          <h2 style="font-size:24px;font-weight:800;margin-bottom:4px">Good morning, Ankit 👋</h2>
+          <p style="color:var(--text-dim);font-size:14px">You have 2 lessons left to complete this week.</p>
+        </div>
+
+        <div class="progress-cards">
+          <div class="progress-card">
+            <div class="progress-card-label">🎯 Courses Enrolled</div>
+            <div class="progress-card-value" style="background:linear-gradient(135deg,var(--accent),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">4</div>
+            <div class="progress-card-sub">2 in progress</div>
+          </div>
+          <div class="progress-card">
+            <div class="progress-card-label">✅ Lessons Completed</div>
+            <div class="progress-card-value" style="background:linear-gradient(135deg,var(--success),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">48</div>
+            <div class="progress-card-sub">+6 this week</div>
+          </div>
+          <div class="progress-card">
+            <div class="progress-card-label">⏱️ Hours Learned</div>
+            <div class="progress-card-value" style="background:linear-gradient(135deg,var(--warning),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">32h</div>
+            <div class="progress-card-sub">+4.2h this week</div>
+          </div>
+        </div>
+
+        <!-- Activity chart -->
+        <div class="progress-card" style="margin-bottom:20px">
+          <div class="progress-card-label">📈 Weekly Activity (hours)</div>
+          <div class="bar-chart" id="bar-chart"></div>
+        </div>
+
+        <!-- Continue learning -->
+        <div class="section-header" style="margin-top:4px">
+          <h3 style="font-size:18px;font-weight:700">Continue Learning</h3>
+          <span class="section-link" onclick="showTab('mycourses')">All courses →</span>
+        </div>
+        <div id="continue-list"></div>
+      </div>
+
+      <!-- MY COURSES TAB -->
+      <div id="tab-mycourses" style="display:none">
+        <div style="margin-bottom:24px">
+          <h2 style="font-size:24px;font-weight:800;margin-bottom:4px">My Courses</h2>
+          <p style="color:var(--text-dim);font-size:14px">Track your progress across all enrolled courses</p>
+        </div>
+        <div class="enrolled-list" id="enrolled-list"></div>
+      </div>
+
+      <!-- ACHIEVEMENTS TAB -->
+      <div id="tab-achievements" style="display:none">
+        <div style="margin-bottom:24px">
+          <h2 style="font-size:24px;font-weight:800;margin-bottom:4px">Achievements 🏆</h2>
+          <p style="color:var(--text-dim);font-size:14px">Badges earned on your learning journey</p>
+        </div>
+        <div class="achievement-grid">
+          <div class="achievement-card">
+            <div class="achievement-icon">🚀</div>
+            <div class="achievement-name">Fast Learner</div>
+            <div class="achievement-desc">Completed 5 lessons in one day</div>
+          </div>
+          <div class="achievement-card">
+            <div class="achievement-icon">🔥</div>
+            <div class="achievement-name">On Fire</div>
+            <div class="achievement-desc">14-day learning streak</div>
+          </div>
+          <div class="achievement-card">
+            <div class="achievement-icon">🎯</div>
+            <div class="achievement-name">Goal Crusher</div>
+            <div class="achievement-desc">Met weekly goal 4 weeks in a row</div>
+          </div>
+          <div class="achievement-card" style="opacity:0.4;filter:grayscale(1)">
+            <div class="achievement-icon">💎</div>
+            <div class="achievement-name">Diamond</div>
+            <div class="achievement-desc">Complete 5 full courses</div>
+          </div>
+          <div class="achievement-card" style="opacity:0.4;filter:grayscale(1)">
+            <div class="achievement-icon">🌟</div>
+            <div class="achievement-name">Star Student</div>
+            <div class="achievement-desc">Score 100% on 3 quizzes</div>
+          </div>
+          <div class="achievement-card">
+            <div class="achievement-icon">📝</div>
+            <div class="achievement-name">Note Taker</div>
+            <div class="achievement-desc">Added 20+ notes</div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     PAGE: VIDEO PLAYER
+════════════════════════════════════════════ -->
+<div class="page" id="page-video">
+  <div class="video-layout">
+    <div class="video-main">
+      <!-- Player -->
+      <div class="video-player">
+        <div class="video-player-bg">
+          <div class="video-code-art" id="video-code-art"></div>
+          <div class="video-play-btn" id="play-btn" onclick="togglePlay()">▶</div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="video-controls">
+        <div class="video-progress" onclick="seekVideo(event)">
+          <div class="video-progress-fill" id="video-progress-fill" style="width:35%"></div>
+        </div>
+        <div class="video-controls-row">
+          <div class="ctrl-left">
+            <button class="ctrl-btn" onclick="prevLesson()">⏮</button>
+            <button class="ctrl-btn" id="play-ctrl-btn" onclick="togglePlay()">⏸</button>
+            <button class="ctrl-btn" onclick="nextLesson()">⏭</button>
+            <span class="video-time" id="video-time">04:12 / 12:00</span>
+          </div>
+          <div class="ctrl-right">
+            <button class="ctrl-btn">🔇</button>
+            <button class="ctrl-btn">⚙️</button>
+            <button class="ctrl-btn">⛶</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info + Tabs -->
+      <div class="video-info">
+        <div class="video-title" id="video-lesson-title">Lesson 4: CSS Grid vs Flexbox – When to Use What</div>
+        <div class="video-meta">
+          <span>👤 Priya Sharma</span>
+          <span>📅 Updated Nov 2024</span>
+          <span class="chip chip-success">✓ HD</span>
+          <span class="chip chip-info">Subtitles</span>
+        </div>
+      </div>
+
+      <div class="video-tabs">
+        <div class="video-tab active" onclick="setVideoTab(this,'vtab-desc')">Overview</div>
+        <div class="video-tab" onclick="setVideoTab(this,'vtab-notes')">Notes</div>
+        <div class="video-tab" onclick="setVideoTab(this,'vtab-qa')">Q&A</div>
+        <div class="video-tab" onclick="setVideoTab(this,'vtab-resources')">Resources</div>
+      </div>
+
+      <div class="video-tab-content">
+        <div id="vtab-desc">
+          <p class="lesson-description">In this lesson, we dive deep into two of CSS's most powerful layout tools — Grid and Flexbox. You'll learn exactly when to reach for each one, common pitfalls to avoid, and how to combine them effectively in real projects.<br><br>
+          By the end, you'll confidently choose the right tool for any layout challenge without second-guessing yourself.</p>
+
+          <div style="margin-top:20px;display:flex;flex-direction:column;gap:10px">
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:12px">
+              <span style="font-size:20px">📎</span>
+              <div>
+                <div style="font-size:14px;font-weight:500">Starter Files</div>
+                <div style="font-size:12px;color:var(--text-dim)">grid-flexbox-starter.zip • 2.4 MB</div>
+              </div>
+              <button class="btn-outline" style="margin-left:auto;padding:8px 16px;font-size:13px">Download</button>
+            </div>
+          </div>
+        </div>
+        <div id="vtab-notes" style="display:none">
+          <textarea style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;resize:vertical;min-height:140px;line-height:1.6" placeholder="Add your notes for this lesson..."></textarea>
+          <button class="btn-primary" style="margin-top:12px" onclick="showToast('📝 Notes saved!')">Save Notes</button>
+        </div>
+        <div id="vtab-qa" style="display:none">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px">
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div class="avatar" style="width:32px;height:32px;font-size:12px;flex-shrink:0">SK</div>
+              <div>
+                <div style="font-weight:600;font-size:14px;margin-bottom:4px">Sunita K.</div>
+                <div style="font-size:13px;color:var(--text-dim)">When should I use grid-template-areas? Is it just for readability?</div>
+                <div style="font-size:12px;color:var(--accent);margin-top:8px;cursor:pointer">↩ Reply · 3 upvotes</div>
+              </div>
+            </div>
+          </div>
+          <textarea style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;resize:none;height:80px" placeholder="Ask a question…"></textarea>
+          <button class="btn-primary" style="margin-top:10px" onclick="showToast('✅ Question posted!')">Post Question</button>
+        </div>
+        <div id="vtab-resources" style="display:none">
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <a style="display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 18px;text-decoration:none;color:var(--text);cursor:pointer;transition:border-color 0.2s" href="#" onclick="showToast('🔗 Opening resource...')">
+              <span style="font-size:20px">🌐</span>
+              <div><div style="font-size:14px;font-weight:500">MDN: CSS Grid</div><div style="font-size:12px;color:var(--text-dim)">developer.mozilla.org</div></div>
+            </a>
+            <a style="display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 18px;text-decoration:none;color:var(--text);cursor:pointer" href="#" onclick="showToast('🔗 Opening resource...')">
+              <span style="font-size:20px">🌐</span>
+              <div><div style="font-size:14px;font-weight:500">CSS-Tricks: Flexbox Guide</div><div style="font-size:12px;color:var(--text-dim)">css-tricks.com</div></div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Playlist -->
+    <div class="playlist">
+      <div class="playlist-header">
+        <div class="playlist-title">Complete Web Dev Bootcamp</div>
+        <div class="playlist-progress-text">7 / 20 lessons complete</div>
+        <div class="playlist-prog-bar">
+          <div class="playlist-prog-fill"></div>
+        </div>
+      </div>
+
+      <div id="playlist-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span id="toast-msg">✅ Saved!</span>
+</div>
+
+<!-- ════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════ -->
+<script>
+// ── DATA ──
+const courses = [
+  { id:1, title:"Complete Web Dev Bootcamp", author:"Priya Sharma", emoji:"💻", gradient:"linear-gradient(135deg,#1a1a3e,#2d1b69)", tag:"Web Dev", level:"Beginner", lessons:20, hours:"24h", rating:4.9, reviews:2341, progress:35, enrolled:true },
+  { id:2, title:"Python for Data Science", author:"Rahul Mehta", emoji:"🐍", gradient:"linear-gradient(135deg,#0a2a1a,#1a5c2a)", tag:"Data Science", level:"Intermediate", lessons:32, hours:"40h", rating:4.8, reviews:1876, progress:68, enrolled:true },
+  { id:3, title:"UI/UX Design Masterclass", author:"Anika Verma", emoji:"🎨", gradient:"linear-gradient(135deg,#3a1a1a,#5c2d1b)", tag:"Design", level:"Beginner", lessons:18, hours:"20h", rating:4.7, reviews:987, progress:0, enrolled:false },
+  { id:4, title:"Machine Learning A-Z", author:"Dr. Kavya Nair", emoji:"🤖", gradient:"linear-gradient(135deg,#1a1a3a,#2a3a5c)", tag:"AI & ML", level:"Advanced", lessons:45, hours:"58h", rating:4.9, reviews:3241, progress:12, enrolled:true },
+  { id:5, title:"React & Next.js 2024", author:"Vikram Singh", emoji:"⚛️", gradient:"linear-gradient(135deg,#0a2a3a,#0f4c75)", tag:"Web Dev", level:"Intermediate", lessons:28, hours:"32h", rating:4.8, reviews:1543, progress:0, enrolled:false },
+  { id:6, title:"Flutter Mobile Dev", author:"Meera Krishnan", emoji:"📱", gradient:"linear-gradient(135deg,#1a2a3a,#0a3a5a)", tag:"Mobile", level:"Intermediate", lessons:24, hours:"28h", rating:4.6, reviews:765, progress:82, enrolled:true },
+  { id:7, title:"Cybersecurity Fundamentals", author:"Ajay Rathore", emoji:"🔐", gradient:"linear-gradient(135deg,#2a0a0a,#5c1a1a)", tag:"Cybersecurity", level:"Beginner", lessons:16, hours:"18h", rating:4.7, reviews:654, progress:0, enrolled:false },
+  { id:8, title:"SQL & Database Design", author:"Deepa Iyer", emoji:"🗄️", gradient:"linear-gradient(135deg,#1a2a0a,#3a5c1a)", tag:"Data Science", level:"Beginner", lessons:14, hours:"16h", rating:4.8, reviews:1123, progress:0, enrolled:false },
+];
+
+const playlistData = [
+  { section:"Section 1: HTML Fundamentals", items:[
+    {n:1,title:"Introduction & Setup",duration:"5:32",done:true},
+    {n:2,title:"HTML Structure & Tags",duration:"9:14",done:true},
+    {n:3,title:"Forms & Inputs",duration:"11:20",done:true},
+  ]},
+  { section:"Section 2: CSS Mastery", items:[
+    {n:4,title:"CSS Grid vs Flexbox",duration:"12:00",done:false,active:true},
+    {n:5,title:"Responsive Design",duration:"14:30",done:false},
+    {n:6,title:"CSS Animations",duration:"10:45",done:false},
+  ]},
+  { section:"Section 3: JavaScript", items:[
+    {n:7,title:"Variables & Functions",duration:"13:10",done:false},
+    {n:8,title:"DOM Manipulation",duration:"15:50",done:false},
+    {n:9,title:"Async / Await",duration:"18:20",done:false},
+  ]},
+];
+
+let currentFilter = 'All';
+let isPlaying = false;
+
+// ── PAGE NAVIGATION ──
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function setActiveNav(id) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active-nav'));
+  document.getElementById(id)?.classList.add('active-nav');
+}
+
+// ── DASHBOARD TABS ──
+function showTab(name) {
+  ['overview','mycourses','achievements'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = t===name ? '' : 'none';
+  });
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+}
+
+// ── VIDEO TABS ──
+function setVideoTab(el, id) {
+  document.querySelectorAll('.video-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['vtab-desc','vtab-notes','vtab-qa','vtab-resources'].forEach(t => {
+    document.getElementById(t).style.display = t===id ? '' : 'none';
+  });
+}
+
+// ── RENDER CARDS ──
+function renderCard(c, showProgress=false) {
+  return `
+    <div class="course-card" onclick="openCourse(${c.id})">
+      <div class="course-thumb">
+        <div class="course-thumb-bg" style="background:${c.gradient}">
+          <span style="font-size:52px">${c.emoji}</span>
+        </div>
+        <div class="course-badge">${c.level}</div>
+        <div class="course-play">▶</div>
+      </div>
+      <div class="course-body">
+        <div class="course-tags"><span class="tag">${c.tag}</span></div>
+        <div class="course-title">${c.title}</div>
+        <div class="course-author">by ${c.author}</div>
+        <div class="course-meta">
+          <div class="course-rating"><span class="stars">★</span> ${c.rating} (${c.reviews.toLocaleString()})</div>
+          <div class="course-info"><span>📹 ${c.lessons} lessons</span><span>⏱ ${c.hours}</span></div>
+        </div>
+        ${showProgress && c.progress > 0 ? `
+          <div class="course-progress-bar">
+            <div class="course-progress-fill" style="width:${c.progress}%"></div>
+          </div>
+          <div style="font-size:11px;color:var(--text-dim);margin-top:6px">${c.progress}% complete</div>
+        ` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function openCourse(id) {
+  showPage('video');
+  setActiveNav('nav-dashboard');
+  showToast('▶ Opening course player…');
+}
+
+// ── HOME COURSES ──
+function renderHomeCourses() {
+  const el = document.getElementById('home-courses');
+  el.innerHTML = courses.slice(0,4).map(c => renderCard(c)).join('');
+}
+
+// ── CATALOG ──
+function renderCatalog() {
+  const q = (document.getElementById('search-input')?.value||'').toLowerCase();
+  const filtered = courses.filter(c => {
+    const matchFilter = currentFilter==='All' || c.tag===currentFilter;
+    const matchSearch = !q || c.title.toLowerCase().includes(q) || c.author.toLowerCase().includes(q) || c.tag.toLowerCase().includes(q);
+    return matchFilter && matchSearch;
+  });
+  document.getElementById('catalog-courses').innerHTML = filtered.map(c => renderCard(c)).join('');
+  document.getElementById('catalog-count').textContent = `${filtered.length} courses`;
+}
+
+function setFilter(el, f) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('catalog-heading').textContent = f==='All' ? 'All Courses' : f+' Courses';
+  renderCatalog();
+}
+
+function filterCourses() { renderCatalog(); }
+
+// ── DASHBOARD ──
+function renderDashboard() {
+  const enrolled = courses.filter(c => c.enrolled);
+
+  // Continue (overview)
+  const contList = document.getElementById('continue-list');
+  contList.innerHTML = `<div class="enrolled-list">${enrolled.slice(0,2).map(c => enrolledItem(c)).join('')}</div>`;
+
+  // My courses
+  document.getElementById('enrolled-list').innerHTML = enrolled.map(c => enrolledItem(c)).join('');
+}
+
+function enrolledItem(c) {
+  return `
+    <div class="enrolled-item" onclick="openCourse(${c.id})">
+      <div class="enrolled-icon" style="background:${c.gradient}">${c.emoji}</div>
+      <div class="enrolled-info">
+        <div class="enrolled-title">${c.title}</div>
+        <div class="enrolled-meta">
+          <span>${c.author}</span>
+          <span>📹 ${c.lessons} lessons</span>
+          <span class="chip ${c.progress>=100?'chip-success':c.progress>0?'chip-info':'chip-warn'}">${c.progress>=100?'✓ Done':c.progress>0?'In Progress':'Not Started'}</span>
+        </div>
+      </div>
+      <div class="enrolled-progress-wrap">
+        <div class="enrolled-prog-label"><span>${c.progress}% complete</span><span>${Math.round(c.lessons*c.progress/100)}/${c.lessons}</span></div>
+        <div class="enrolled-prog-bar"><div class="enrolled-prog-fill" style="width:${c.progress}%"></div></div>
+      </div>
+      <button class="resume-btn">${c.progress>0?'Resume':'Start'} →</button>
+    </div>
+  `;
+}
+
+// ── STREAK ──
+function renderStreak() {
+  const days = ['M','T','W','T','F','S','S'];
+  const done = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,0];
+  let html = '';
+  for(let i=0;i<14;i++){
+    const cls = i===13 ? 'today' : done[i] ? 'done' : '';
+    html += `<div class="streak-day ${cls}">${days[i%7]}</div>`;
+  }
+  document.getElementById('streak-row').innerHTML = html;
+}
+
+// ── BAR CHART ──
+function renderChart() {
+  const data = [
+    {label:'Mon',h:1.5},{label:'Tue',h:2.8},{label:'Wed',h:0.5},{label:'Thu',h:3.2},{label:'Fri',h:2.1},{label:'Sat',h:4.1},{label:'Sun',h:0.8}
+  ];
+  const max = Math.max(...data.map(d=>d.h));
+  document.getElementById('bar-chart').innerHTML = data.map(d => `
+    <div class="bar-col">
+      <div class="bar" style="height:${Math.round(d.h/max*90)}px"></div>
+      <div class="bar-label">${d.label}</div>
+    </div>
+  `).join('');
+}
+
+// ── PLAYLIST ──
+function renderPlaylist() {
+  let html = '';
+  playlistData.forEach(sec => {
+    html += `<div class="playlist-section">
+      <div class="playlist-section-header">${sec.section}</div>
+      ${sec.items.map(item => `
+        <div class="playlist-item ${item.done?'completed':''} ${item.active?'active':''}" onclick="selectLesson('${item.title}')">
+          <div class="playlist-num">${item.done?'✓':item.n}</div>
+          <div class="playlist-item-info">
+            <div class="playlist-item-title">${item.title}</div>
+            <div class="playlist-item-meta">
+              <span>${item.duration}</span>
+              ${item.done?'<span class="chip chip-success" style="padding:1px 6px;font-size:10px">Done</span>':''}
+            </div>
+          </div>
+        </div>
+      `).join('')}
+    </div>`;
+  });
+  document.getElementById('playlist-content').innerHTML = html;
+}
+
+// ── VIDEO PLAYER ──
+function togglePlay() {
+  isPlaying = !isPlaying;
+  document.getElementById('play-btn').textContent = isPlaying ? '⏸' : '▶';
+  document.getElementById('play-ctrl-btn').textContent = isPlaying ? '⏸' : '▶';
+  if(isPlaying) showToast('▶ Playing…');
+}
+
+function seekVideo(e) {
+  const bar = e.currentTarget;
+  const pct = Math.round((e.offsetX / bar.offsetWidth)*100);
+  document.getElementById('video-progress-fill').style.width = pct+'%';
+  const mins = Math.floor(pct*12/100);
+  const secs = Math.round((pct*12/100 - mins)*60);
+  document.getElementById('video-time').textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')} / 12:00`;
+}
+
+function nextLesson() { showToast('⏭ Next lesson'); }
+function prevLesson() { showToast('⏮ Previous lesson'); }
+
+function selectLesson(title) {
+  document.getElementById('video-lesson-title').textContent = 'Lesson: '+title;
+  document.querySelectorAll('.playlist-item').forEach(i => i.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  showToast('▶ Loading: '+title);
+}
+
+// ── CODE ART (animated bg) ──
+function renderCodeArt() {
+  const lines = [
+    '.container { display: grid;',
+    '  grid-template-columns: 1fr 2fr 1fr;',
+    '  gap: 24px; }',
+    '',
+    '.flex-row { display: flex;',
+    '  align-items: center;',
+    '  justify-content: space-between; }',
+    '',
+    '@media (max-width: 768px) {',
+    '  .container { grid-template-columns: 1fr; }',
+    '}',
+  ];
+  document.getElementById('video-code-art').innerHTML = lines.map(l=>`<div>${l}</div>`).join('');
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── INIT ──
+renderHomeCourses();
+renderCatalog();
+renderDashboard();
+renderStreak();
+renderChart();
+renderPlaylist();
+renderCodeArt();
+</script>
+</body>
+</html>
