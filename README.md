@@ -21,3 +21,6 @@ The Video Player page simulates a real-world video learning experience. It inclu
 The Achievements section displays badges earned by the student based on their learning milestones. Badges such as Fast Learner, On Fire, Goal Crusher, and Note Taker are awarded for various accomplishments. Locked badges are also shown to encourage students to keep learning and unlock new rewards.
 
 *OUTPUT: 
+<img width="1919" height="908" alt="Image" src="https://github.com/user-attachments/assets/34fabb39-8aa1-4006-9a5e-b58f428f151c" />
+<img width="1915" height="905" alt="Image" src="https://github.com/user-attachments/assets/e80908f8-6d7f-4c22-9ae7-f69dd4830319" />
+<img width="1919" height="904" alt="Image" src="https://github.com/user-attachments/assets/f76c5e39-a76e-43ef-867b-17b485135976" />
